@@ -23,6 +23,7 @@ type AuthContextValue = {
   token: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: (idToken: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 };
@@ -94,6 +95,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const loginWithGoogle = useCallback(async (idToken: string) => {
+    setLoading(true);
+    try {
+      const data = await apiFetch<TokenWithUser>('/auth/google', {
+        method: 'POST',
+        body: JSON.stringify({ id_token: idToken }),
+      });
+      setUser(data.user);
+      setToken(data.access_token);
+      await persistAuth(data.user, data.access_token);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const register = useCallback(async (name: string, email: string, password: string) => {
     setLoading(true);
     try {
@@ -121,10 +137,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       token,
       loading,
       login,
+      loginWithGoogle,
       register,
       logout,
     }),
-    [user, token, loading, login, register, logout],
+    [user, token, loading, login, loginWithGoogle, register, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

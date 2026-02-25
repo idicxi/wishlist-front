@@ -29,5 +29,7 @@
 	<!-- ✅ Добавлено: обратный client_id для URL-схемы -->
 	<key>REVERSED_CLIENT_ID</key>
 	<string>com.googleusercontent.apps.15536812730-shvclbe84e933f37vkpqpoai37bgmea8</string>
+	<key>CLIENT_ID</key>
+	<string>15536812730-shvclbe84e933f37vkpqpoai37bgmea8.apps.googleusercontent.com</string>
 </dict>
 </plist>

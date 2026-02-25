@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Alert, FlatList, StyleSheet, Text, View } from 'react-native';
+import { Alert, FlatList, Share, StyleSheet, Text, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { apiFetch, qs } from '../api/http';
+import { WEB_BASE_URL } from '../config';
 import { useAuth } from '../auth/AuthContext';
 import { GiftCard, type Gift } from '../components/GiftCard';
 import { useWishlistSocket } from '../hooks/useWishlistSocket';
@@ -306,6 +307,11 @@ export function WishlistScreen({ navigation, route }: Props) {
   const [amount, setAmount] = useState('');
   const [contributing, setContributing] = useState(false);
 
+  const remainingForSelectedGift =
+    selectedGift != null ? Math.max(0, selectedGift.price - selectedGift.collected) : 0;
+  const minContributionForSelectedGift =
+    selectedGift != null ? Math.ceil(selectedGift.price / 3) : 0;
+
   const openContribute = (gift: Gift) => {
     if (!token) return requireAuth();
     setSelectedGift(gift);
@@ -318,6 +324,24 @@ export function WishlistScreen({ navigation, route }: Props) {
     const a = Number(String(amount).replace(',', '.'));
     if (!Number.isFinite(a) || a <= 0) {
       setError('Введите сумму (число > 0)');
+      return;
+    }
+    const remaining = selectedGift.price - selectedGift.collected;
+    if (a > remaining) {
+      setError(`Максимальная сумма: ${remaining.toLocaleString('ru-RU')} ₽`);
+      return;
+    }
+
+    const minAmount = Math.ceil(selectedGift.price / 3);
+    if (remaining < minAmount) {
+      if (a !== remaining) {
+        setError(`Осталось внести только ${remaining.toLocaleString('ru-RU')} ₽`);
+        return;
+      }
+    } else if (a < minAmount) {
+      setError(
+        `Минимальная сумма взноса: ${minAmount.toLocaleString('ru-RU')} ₽ (1/3 стоимости подарка)`,
+      );
       return;
     }
     setContributing(true);
@@ -339,16 +363,29 @@ export function WishlistScreen({ navigation, route }: Props) {
     }
   };
 
+  const shareWishlist = async () => {
+    const currentSlug = slug;
+    const url = `${WEB_BASE_URL}/wishlist/${encodeURIComponent(currentSlug)}`;
+    try {
+      await Share.share({
+        message: 'Мой вишлист',
+        url,
+        title: 'Поделиться вишлистом',
+      });
+    } catch {
+      Alert.alert('Ошибка', 'Не удалось поделиться вишлистом');
+    }
+  };
+
   const headerRight = useMemo(() => {
-    if (!isAuthenticated) return null;
     return (
       <Button
-        title="Профиль"
+        title="Поделиться"
         variant="secondary"
-        onPress={() => navigation.navigate('Dashboard')}
+        onPress={shareWishlist}
       />
     );
-  }, [isAuthenticated, navigation]);
+  }, [shareWishlist]);
 
   return (
     <Screen title={wishlist?.title ?? 'Вишлист'} right={headerRight}>
@@ -407,6 +444,23 @@ export function WishlistScreen({ navigation, route }: Props) {
                 keyboardType="numeric"
               />
               <ErrorText message={error} />
+              {selectedGift && (
+                <Text
+                  style={{
+                    fontSize: 10,
+                    color:
+                      remainingForSelectedGift < minContributionForSelectedGift
+                        ? '#B45309'
+                        : colors.muted,
+                  }}
+                >
+                  {remainingForSelectedGift < minContributionForSelectedGift
+                    ? `Осталось внести только ${remainingForSelectedGift.toLocaleString('ru-RU')} ₽`
+                    : `Минимальная сумма: ${minContributionForSelectedGift.toLocaleString(
+                        'ru-RU',
+                      )} ₽ (1/3 подарка)`}
+                </Text>
+              )}
               <View style={{ flexDirection: 'row', gap: 10 }}>
                 <View style={{ flex: 1 }}>
                   <Button title="Отмена" variant="secondary" onPress={() => setContributeOpen(false)} />

@@ -1,5 +1,8 @@
 export const API_BASE_URL = 'https://wishlist-backend-8rai.onrender.com';
 
+// Домен сайта (как на wishlist-frontend). По этой ссылке открывается сайт и, при настроенных Universal Links, приложение.
+export const WEB_BASE_URL = 'https://wishlist-frontend-xi.vercel.app';
+
 export const STORAGE_KEYS = {
   token: 'wishlist_token',
   user: 'wishlist_user',

@@ -142,7 +142,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: colors.text },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.text,
+    fontFamily: 'Soledago-Regular',
+  },
   content: { flex: 1, paddingHorizontal: 16, paddingBottom: 16 },
   card: {
     backgroundColor: colors.card,

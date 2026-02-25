@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, FlatList, StyleSheet, Text, View } from 'react-native';
+import { Alert, FlatList, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { apiFetch } from '../api/http';
 import { useAuth } from '../auth/AuthContext';
 import type { RootStackParamList } from '../navigation/types';
+import { WEB_BASE_URL } from '../config';
 import { Button, Card, ErrorText, Screen, TextField, colors } from '../ui/atoms';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
@@ -36,26 +37,57 @@ export function DashboardScreen({ navigation }: Props) {
   const [eventDate, setEventDate] = useState<Date | null>(null);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
 
+  const shareWishlist = async (slug: string) => {
+    const url = `${WEB_BASE_URL}/wishlist/${encodeURIComponent(slug)}`;
+    try {
+      await Share.share({
+        message: 'Мой вишлист',
+        url,
+        title: 'Поделиться вишлистом',
+      });
+    } catch (e) {
+      Alert.alert('Ошибка', 'Не удалось поделиться вишлистом');
+    }
+  };
+
+  const deleteWishlist = async (id: number) => {
+    if (!token) return;
+    Alert.alert('Удалить вишлист', 'Точно удалить этот вишлист? Его нельзя будет вернуть.', [
+      { text: 'Отмена', style: 'cancel' },
+      {
+        text: 'Удалить',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await apiFetch(`/wishlists/${id}`, { token, method: 'DELETE' });
+            setWishlists((prev) => prev.filter((w) => w.id !== id));
+          } catch (e) {
+            const msg = e instanceof Error ? e.message : 'Не удалось удалить вишлист';
+            Alert.alert('Ошибка', msg);
+          }
+        },
+      },
+    ]);
+  };
+
   const headerRight = useMemo(
     () => (
-      <View style={{ minWidth: 70 }}>
-        <Button
-          title="Выйти"
-          variant="secondary"
-          onPress={() =>
-            Alert.alert('Выход', 'Выйти из аккаунта?', [
-              { text: 'Отмена', style: 'cancel' },
-              {
-                text: 'Выйти',
-                style: 'destructive',
-                onPress: async () => {
-                  await logout();
-                },
+      <Button
+        title="Выйти"
+        variant="secondary"
+        onPress={() =>
+          Alert.alert('Выход', 'Выйти из аккаунта?', [
+            { text: 'Отмена', style: 'cancel' },
+            {
+              text: 'Выйти',
+              style: 'destructive',
+              onPress: async () => {
+                await logout();
               },
-            ])
-          }
-        />
-      </View>
+            },
+          ])
+        }
+      />
     ),
     [logout],
   );
@@ -207,11 +239,26 @@ export function DashboardScreen({ navigation }: Props) {
               <Text style={styles.wMeta}>
                 {item.gifts_count != null ? `${item.gifts_count} подарков` : '…'}
               </Text>
-              <View style={{ marginTop: 10 }}>
-                <Button
-                  title="Открыть"
-                  onPress={() => navigation.navigate('Wishlist', { slug: item.slug })}
-                />
+              <View style={{ marginTop: 10, flexDirection: 'row', gap: 8 }}>
+                <View style={{ flex: 1 }}>
+                  <Button
+                    title="Открыть"
+                    onPress={() => navigation.navigate('Wishlist', { slug: item.slug })}
+                  />
+                </View>
+                <TouchableOpacity
+                  onPress={() => deleteWishlist(item.id)}
+                  style={{
+                    paddingHorizontal: 4,
+                    paddingVertical: 4,
+                    borderRadius: 999,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                  hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                >
+                  <Text style={{ fontSize: 18 }}>🗑️</Text>
+                </TouchableOpacity>
               </View>
             </Card>
           )}
