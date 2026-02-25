@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyABqtvoHXx_7_ybgaUoSaxZFOejt7fiBUw</string>
+	<key>GCM_SENDER_ID</key>
+	<string>716054821769</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>org.reactjs.native.example.WishlistIOS</string>
+	<key>PROJECT_ID</key>
+	<string>wishlist-1c1d7</string>
+	<key>STORAGE_BUCKET</key>
+	<string>wishlist-1c1d7.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false/>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false/>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true/>
+	<key>IS_GCM_ENABLED</key>
+	<true/>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true/>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:716054821769:ios:8fabc3c5f99c5a65adbf58</string>
+	<!-- ✅ Добавлено: обратный client_id для URL-схемы -->
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.15536812730-shvclbe84e933f37vkpqpoai37bgmea8</string>
+</dict>
+</plist>

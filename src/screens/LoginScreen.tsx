@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { KeyboardAvoidingView, Platform, Text, View, Alert } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { GoogleSignin, GoogleSigninButton } from '@react-native-google-signin/google-signin';
 
 import { ApiError } from '../api/http';
 import { useAuth } from '../auth/AuthContext';
@@ -14,6 +15,14 @@ export function LoginScreen({ navigation }: Props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: '15536812730-shvclbe84e933f37vkpqpoai37bgmea8.apps.googleusercontent.com',
+      offlineAccess: true,
+    });
+  }, []);
 
   const onSubmit = async () => {
     setError(null);
@@ -37,6 +46,24 @@ export function LoginScreen({ navigation }: Props) {
             ? e.message
             : 'Неверный email или пароль';
       setError(msg);
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    setGoogleLoading(true);
+    setError(null);
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+
+      // TODO: отправлять токен на бэкенд
+      Alert.alert('✅ Успех', `Привет, ${userInfo.user.name || 'пользователь'}!`);
+
+    } catch (e) {
+      setError('Ошибка входа через Google');
+      console.error(e);
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -77,6 +104,16 @@ export function LoginScreen({ navigation }: Props) {
             <ErrorText message={error} />
 
             <Button title="Войти" onPress={onSubmit} loading={loading} />
+
+            {/* Кнопка Google-входа */}
+            <GoogleSigninButton
+              size={GoogleSigninButton.Size.Wide}
+              color={GoogleSigninButton.Color.Dark}
+              onPress={signInWithGoogle}
+              disabled={googleLoading}
+              style={{ width: '100%', height: 48, marginTop: 8 }}
+            />
+
             <Button
               title="Нет аккаунта? Регистрация"
               variant="secondary"
@@ -88,4 +125,3 @@ export function LoginScreen({ navigation }: Props) {
     </Screen>
   );
 }
-

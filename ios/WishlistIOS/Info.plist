@@ -32,6 +32,13 @@
 				<string>wishlistios</string>
 			</array>
 		</dict>
+		<!-- ✅ Добавлено правильно — внутри того же массива -->
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.15536812730-shvclbe84e933f37vkpqpoai37bgmea8</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
