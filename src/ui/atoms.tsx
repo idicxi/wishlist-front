@@ -56,6 +56,8 @@ export function TextField({
   secureTextEntry,
   keyboardType,
   autoCapitalize = 'none',
+  style,
+  labelStyle,
   ...rest
 }: {
   label: string;
@@ -65,19 +67,31 @@ export function TextField({
   secureTextEntry?: boolean;
   keyboardType?: KeyboardTypeOptions;
   autoCapitalize?: TextInputProps['autoCapitalize'];
+  style?: TextInputProps['style'];
+  labelStyle?: TextStyle; // 👈 НОВЫЙ ПРОП
 } & Omit<TextInputProps, 'value' | 'onChangeText'>) {
   return (
     <View style={{ gap: 6 }}>
-      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.label, labelStyle]}>{label}</Text>
       <TextInput
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor="rgba(107,114,128,0.7)"
+        placeholderTextColor="rgba(142,142,147,0.6)"
         secureTextEntry={secureTextEntry}
         keyboardType={keyboardType}
         autoCapitalize={autoCapitalize}
-        style={styles.input}
+        style={[
+          styles.input,
+          style,
+          {
+            fontFamily: Platform.select({
+              ios: 'SF Pro Text',
+              android: 'sans-serif',
+              default: 'System',
+            }),
+          }
+        ]}
         {...rest}
       />
     </View>
